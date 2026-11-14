@@ -38,11 +38,20 @@ pattern and the background sender check if the deployment URL changes.
 
 ## Install in Brave Origin
 
-From a checkout of this repository:
+Install Git and Python 3.11+ first, then clone from GitHub:
 
 ```sh
-python3 install.py --browser brave-origin
+mkdir -p ~/Documents/github_repositories
+cd ~/Documents/github_repositories
+git clone https://github.com/iop098321qwe/omarchy_theme_sync.git
+cd omarchy_theme_sync
+git switch develop
+python3 install.py --browser brave-origin --configure-browser
 ```
+
+Until a release is cut, use `develop`, where the extension source lives.
+Private repository access requires GitHub authentication.
+No administrator privileges are needed.
 
 The installer copies companion files to
 `~/.local/share/grymm-theme-companion` and writes a native messaging manifest
@@ -52,7 +61,13 @@ The launcher uses the exact Python executable running the installer. Rerun
 installation after replacing that interpreter, for example after a major
 Python upgrade or removing a virtual environment.
 
-Then, once per browser profile:
+For Brave Origin, fully exit all browser and web-app windows and reopen.
+`--configure-browser` merges the installed companion and an installed Calendar
+bridge into launch flags without dropping stock extensions or other flags.
+It backs up changed flags and preserves file permissions and symlinks.
+
+For other supported browsers, or when automatic loading is unavailable,
+perform these steps once per browser profile:
 
 1. Open `brave://extensions` and enable **Developer mode**.
 2. Choose **Load unpacked** and select the `extension` subdirectory at the
@@ -69,32 +84,27 @@ multiple supported browsers. Run `python3 install.py --help` for
 the complete list. Native messaging support in other packaging formats,
 such as Flatpak or Snap, is not provided by this installer.
 
-## Chezmoi deployment
+## Update from GitHub
 
-Use an apply hook in the Chezmoi source repository to download a pinned
-revision of these five files and run the installer:
+```sh
+cd ~/Documents/github_repositories/omarchy_theme_sync
+git switch develop
+git pull --ff-only origin develop
+python3 install.py --browser brave-origin --browser brave --configure-browser
+```
 
-- `install.py`
-- `native_host.py`
-- `extension/manifest.json`
-- `extension/background.js`
-- `extension/content.js`
+Use only the `--browser` values for browsers you use; repeat them on updates.
+For browsers other than Brave Origin, omit `--configure-browser` unless you
+also want to configure Brave Origin.
 
-The companion source belongs here; Chezmoi should own its revision pin and
-deployment policy. The hook should run only on Linux with Omarchy installed,
-cache downloads outside a development checkout, and rerun the idempotent
-installer on apply. Pin a full commit SHA rather than a moving branch. Update
-that pin intentionally to deploy a new version on all computers.
+Fully exit Brave Origin, including web-app windows, and reopen it.
+For manually loaded extensions, open the browser's extensions page, click
+**Reload** on the companion card, and reload all open main_page tabs.
+Verify a theme change updates the site. Git pull alone does not update the
+installed files; rerun the installer every time.
 
-The corresponding `dotfiles-arch` hook is named
-`.chezmoiscripts/run_after_003_theme_companion.sh`. It registers Brave Origin
-and standard Brave. `chezmoi apply` deploys it; `chezmoi update` pulls and
-applies the latest dotfiles. Merely pulling the dotfiles repository does not
-install the companion.
-
-Chezmoi cannot silently enable an unpacked extension in a browser profile.
-Perform the browser steps above on each computer/profile. After companion
-updates, use the extension's **Reload** button and reload open site tabs.
+Chezmoi no longer installs or updates the companion. The installed path,
+native host name, and extension ID are unchanged for existing users.
 Brave does not automatically update unpacked extensions like store extensions.
 
 Non-Omarchy computers skip deployment and see Catppuccin. If companion files
@@ -154,8 +164,9 @@ python3 install.py --browser brave-origin --uninstall
 Repeat for other registered browsers, remove the extension from each profile,
 and reload the site. The installer retains shared companion files so other
 registered browsers keep working. Once all registrations are removed, the
-`grymm-theme-companion` data directory can be deleted manually. Remove or
-disable the Chezmoi deployment hook as well to prevent reinstallation.
+`grymm-theme-companion` data directory can be deleted manually. If configured
+through Brave Origin flags, remove only the companion path from
+`~/.config/brave-origin-flags.conf`; preserve other extensions and flags.
 
 ## Repository maintenance
 
@@ -164,7 +175,4 @@ This repository maintains the companion previously hosted in
 name, and installed paths are unchanged. Releases are cut manually; migration
 does not set a release version.
 
-The existing Chezmoi hook still downloads its pinned `main_page` revision.
-Switching it to this repository requires changing its repository, revision,
-and download paths together. The old deployment sources are retained until
-that separate cutover, so current installs continue working.
+Installation and updates are owned by this repository, not by dotfiles sync.

@@ -51,6 +51,7 @@ or release automation.
 - `LICENSE`: repository license.
 - `README.md`: installation, deployment, and recovery guide.
 - `commitlint.config.cjs`: Conventional Commit validation.
+- `browser_setup.py`: preserves and merges Brave Origin extension flags.
 - `docs/AGENTS.md`, `docs/README.md`: root documentation symlinks.
 - `done.txt`: bootstrap completed-task placeholder.
 - `extension/background.js`: shared native connection and retries.
@@ -64,6 +65,7 @@ or release automation.
 - `site/`: generated documentation; contents omitted from per-file listing.
 - `tests/fixtures/palette.css`: standalone main_page palette test fixture.
 - `tests/test_theme_companion.py`: host and installer regression tests.
+- `tests/test_browser_setup.py`: isolated browser flag and backup checks.
 - `tests/theme_extension.cjs`: mocked browser lifecycle tests.
 - `todo.txt`: user-only task file; agents must not touch it.
 - `zensical.toml`: documentation site configuration.
@@ -85,6 +87,7 @@ or release automation.
 - `npm test`: run pytest, which also invokes the Node extension tests.
 - `python3 native_host.py --print`: print the detected palette.
 - `python3 install.py --extension-id`: print the stable extension ID.
+- `python3 install.py --configure-browser`: install and configure Brave Origin.
 - `zensical build --clean`: build documentation when installed.
 
 ## Testing
