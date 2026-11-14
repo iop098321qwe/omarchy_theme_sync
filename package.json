@@ -1,6 +1,6 @@
 {
   "name": "omarchy_theme_sync",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "extension to sync main_page site with omarchy theme",
   "main": "index.js",
   "scripts": {
@@ -12,11 +12,16 @@
     "url": "git+https://github.com/iop098321qwe/omarchy_theme_sync.git"
   },
   "commit-and-tag-version": {
-    "packageFiles": ["package.json"],
+    "packageFiles": [
+      "package.json"
+    ],
     "bumpFiles": [
       "package.json",
       "package-lock.json",
-      { "filename": "extension/manifest.json", "type": "json" }
+      {
+        "filename": "extension/manifest.json",
+        "type": "json"
+      }
     ]
   },
   "keywords": [],
