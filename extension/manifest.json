@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Grymm's Omarchy Theme Companion",
+  "version": "1.0.0",
+  "description": "Match Grymm's start page to the local Omarchy palette.",
+  "minimum_chrome_version": "105",
+  "permissions": ["nativeMessaging"],
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [{
+    "matches": ["https://iop098321qwe.github.io/main_page/*"],
+    "js": ["content.js"],
+    "run_at": "document_start"
+  }],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyMGqW9J/Ha1F/ijPumVAr/I1CPC6sU9zJQMTrT7mbZzoykcXbyaStxzCvIBPGA+x3z++KM5z+ujsyVXoauOO9+bu/XQwk3HOxbAxEK0noUnWacwAFUGgQdTl67kGaYhD3uDsBZYl5zV7yp3G1S929WaXJATUgRCG3cZhwOJPgCXVqf8lqDgv1EyAXY3350BWmlExJAHIDRb5elMsE75ZF4EKV3YzZ9b4HCZPbnNSjYf9K11O3ymfp/IN8AkIHxV/A3/zg8LdBR4EP/GbnIJ3x/qPnHPZWH5NQU57Lv/xyLw55+tkuWl9Cc2YLUbaABcUm99esSgW19lmvkkUvK5SawIDAQAB"
+}
