@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Idempotently deploy the companion; suitable for a Chezmoi apply hook."""
+"""Install or update the companion from a repository checkout."""
 
 import argparse
 import base64
@@ -77,6 +77,10 @@ def main():
     )
     parser.add_argument("--uninstall", action="store_true")
     parser.add_argument("--extension-id", action="store_true")
+    parser.add_argument(
+        "--configure-browser", action="store_true",
+        help="Merge installed extensions into Brave Origin launch flags",
+    )
     args = parser.parse_args()
     if args.extension_id:
         print(extension_id())
@@ -87,6 +91,10 @@ def main():
     config = Path(os.environ.get("XDG_CONFIG_HOME", str(home / ".config")))
     data = Path(os.environ.get("XDG_DATA_HOME", str(home / ".local/share")))
     install(config, data, args.browser or ["brave-origin"], args.uninstall)
+    if args.configure_browser and not args.uninstall:
+        from browser_setup import configure
+        configure(config, data)
+        print("Fully exit Brave Origin and reopen it to load the extensions.")
 
 
 if __name__ == "__main__":
