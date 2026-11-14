@@ -551,37 +551,55 @@ or release automation.</p>
 <li>Run <code>git status --short --branch</code> before editing to confirm repo
   state.</li>
 <li>Run <code>git diff --stat</code> before committing to review the change scope.</li>
-<li>Verification needed: add authoritative setup, run, or build
-  commands when this repository defines them.</li>
+<li>Run <code>python3 -m pytest -q</code>.</li>
+<li>Install with <code>python3 install.py --browser brave-origin</code> only on request.</li>
 </ul>
 <h2 id="environment">Environment<a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Git is required for day-to-day work in this repository.</li>
-<li>Verification needed: document runtime versions, package managers,
-  and env vars when they exist.</li>
+<li>Linux, Python 3.11+, and Chromium 105+ support live native messaging.</li>
+<li>Tests require pytest and Node.js; npm provides commitlint and Husky.</li>
+<li><code>XDG_CONFIG_HOME</code>, <code>XDG_DATA_HOME</code>, and <code>XDG_STATE_HOME</code> override defaults.</li>
 </ul>
 <h2 id="repository-overview">Repository Overview<a class="headerlink" href="#repository-overview" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Root files hold the initial project overview, license, and repo
-  policies.</li>
-<li>Verification needed: add top-level directories here when the repo
-  grows.</li>
+<li><code>extension/</code> holds the browser extension; <code>tests/</code> holds Python/Node tests.</li>
+<li>Root Python scripts install the companion and publish native palettes.</li>
+<li><code>docs/</code> links root documentation; <code>site/</code> is generated docs output.</li>
 </ul>
 <h2 id="tracked-files-overview">Tracked Files Overview<a class="headerlink" href="#tracked-files-overview" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>AGENTS.md</code>: AI coding agent instructions for this repository.</li>
-<li><code>done.txt</code>: Root completed task list placeholder for bootstrap workflows.</li>
-<li><code>inbox.txt.tuxedo-lock</code>: Blank Tuxedo inbox lock file created alongside todo.txt.</li>
-<li><code>LICENSE</code>: Project license text.</li>
-<li><code>README.md</code>: Primary repository overview and setup notes.</li>
-<li><code>todo.txt</code>: Root task list placeholder for bootstrap workflows.</li>
+<li><code>.github/workflows/docs.yml</code>: Zensical Pages build and deployment.</li>
+<li><code>.gitignore</code>: local dependency, Python cache, and test exclusions.</li>
+<li><code>.husky/commit-msg</code>: commitlint hook.</li>
+<li><code>AGENTS.md</code>: repository instructions.</li>
+<li><code>LICENSE</code>: repository license.</li>
+<li><code>README.md</code>: installation, deployment, and recovery guide.</li>
+<li><code>commitlint.config.cjs</code>: Conventional Commit validation.</li>
+<li><code>docs/AGENTS.md</code>, <code>docs/README.md</code>: root documentation symlinks.</li>
+<li><code>done.txt</code>: bootstrap completed-task placeholder.</li>
+<li><code>extension/background.js</code>: shared native connection and retries.</li>
+<li><code>extension/content.js</code>: live CSS palette overrides.</li>
+<li><code>extension/manifest.json</code>: scoped MV3 permissions and stable public key.</li>
+<li><code>inbox.txt.tuxedo-lock</code>: bootstrap inbox lock placeholder.</li>
+<li><code>install.py</code>: native registration and companion installation.</li>
+<li><code>native_host.py</code>: palette parsing and native messaging.</li>
+<li><code>package-lock.json</code>: npm dependency lock.</li>
+<li><code>package.json</code>: metadata, test command, and commitlint dependencies.</li>
+<li><code>site/</code>: generated documentation; contents omitted from per-file listing.</li>
+<li><code>tests/fixtures/palette.css</code>: standalone main_page palette test fixture.</li>
+<li><code>tests/test_theme_companion.py</code>: host and installer regression tests.</li>
+<li><code>tests/theme_extension.cjs</code>: mocked browser lifecycle tests.</li>
+<li><code>todo.txt</code>: user-only task file; agents must not touch it.</li>
+<li><code>zensical.toml</code>: documentation site configuration.</li>
 </ul>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <ul>
-<li>This repository starts from a minimal scaffold and may not define
-  subsystems yet.</li>
-<li>Verification needed: describe components, boundaries, and data flow
-  after they are introduced.</li>
+<li>The native host reads Omarchy TOML colors and sends framed JSON.</li>
+<li>The worker forwards validated palettes to matching main_page tabs.</li>
+<li>The content script sets CSS tokens; host failures restore site defaults.</li>
+<li>State-path theme discovery precedes legacy config-path discovery.</li>
+<li>Keep the manifest key, native host name, and installed paths stable.</li>
 </ul>
 <h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <ul>
@@ -589,23 +607,28 @@ or release automation.</p>
   state.</li>
 <li><code>git diff --stat</code>: review the size and spread of pending changes.</li>
 <li><code>git log --oneline --decorate -5</code>: inspect recent commit history.</li>
-<li>Verification needed: document authoritative build, run, lint, and
-  task commands when the repository defines them.</li>
+<li><code>npm test</code>: run pytest, which also invokes the Node extension tests.</li>
+<li><code>python3 native_host.py --print</code>: print the detected palette.</li>
+<li><code>python3 install.py --extension-id</code>: print the stable extension ID.</li>
+<li><code>zensical build --clean</code>: build documentation when installed.</li>
 </ul>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Verification needed: add test commands and expectations when tests
-  exist.</li>
+<li><code>python3 -m pytest -q</code> covers framing, replacement, recovery, and install.</li>
+<li>Tests use isolated temporary directories and mocked browser APIs.</li>
 <li>Do not claim coverage, test gates, or suites that are not verified.</li>
 </ul>
 <h2 id="linting-and-formatting">Linting and Formatting<a class="headerlink" href="#linting-and-formatting" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Verification needed: add formatter and linter commands after they
-  are introduced.</li>
+<li>Commitlint validates messages through the Husky commit hook.</li>
+<li>Python tests check extension JavaScript syntax using Node.</li>
+<li>No source formatter is configured.</li>
 <li>Keep changes minimal and consistent with the existing code style.</li>
 </ul>
 <h2 id="ci-and-release">CI and Release<a class="headerlink" href="#ci-and-release" title="Permanent link">&para;</a></h2>
 <ul>
+<li><code>.github/workflows/docs.yml</code> builds Zensical on <code>main</code> and <code>master</code>.</li>
+<li>Releases are manual; release-note filters are not defined here.</li>
 <li>Use Conventional Commits for every commit. Prefer a scope when it
   adds clarity.</li>
 <li>Never create, edit, or update <code>CHANGELOG.md</code> manually.</li>
@@ -616,6 +639,11 @@ or release automation.</p>
 <h2 id="conventions">Conventions<a class="headerlink" href="#conventions" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Use small, correct changes that fit the existing project structure.</li>
+<li>Agents must never read, create, edit, delete, move, stage, commit, or
+  otherwise touch <code>todo.txt</code>; only the user may modify it manually.</li>
+<li>Prefer amending small related corrections into the relevant unshared
+  current-branch commit instead of separate fixup or cleanup commits.</li>
+<li>Use standalone, changelog-ready Conventional Commit headers.</li>
 <li>Verify behavior from the actual codebase before documenting or
   changing it.</li>
 <li>Keep <code>AGENTS.md</code> as instructions, not as a changelog, diary, or work
@@ -631,10 +659,9 @@ or release automation.</p>
 </ul>
 <h2 id="dependencies-and-services">Dependencies and Services<a class="headerlink" href="#dependencies-and-services" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Verification needed: document external services, databases, queues,
-  or storage when they are added.</li>
-<li>Avoid assuming any third-party service exists until the repo proves
-  it.</li>
+<li>No network listener, systemd service, or theme hook is installed.</li>
+<li>Only the main_page GitHub Pages path receives palette overrides.</li>
+<li>Releases are manual; do not change versions as part of migration.</li>
 </ul>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>

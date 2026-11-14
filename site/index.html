@@ -22,7 +22,7 @@
     
     
       
-        <title>Omarchy_theme_sync - Omarchy Theme Sync</title>
+        <title>Omarchy theme sync - Omarchy Theme Sync</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Omarchy_theme_sync
+              Omarchy theme sync
             
           </span>
         </div>
@@ -282,6 +282,11 @@
                       
                     
                     
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
                   
                   <div class="md-sidebar__inner">
                     
@@ -293,6 +298,80 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        How it works
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-in-brave-origin" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Install in Brave Origin
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chezmoi-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Chezmoi deployment
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-and-troubleshoot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Verify and troubleshoot
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Remove
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repository-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Repository maintenance
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -317,8 +396,141 @@
                   
 
 
-<h1 id="omarchy_theme_sync">Omarchy_theme_sync<a class="headerlink" href="#omarchy_theme_sync" title="Permanent link">&para;</a></h1>
-<p>extension to sync main_page site with omarchy theme</p>
+<h1 id="omarchy-theme-sync">Omarchy theme sync<a class="headerlink" href="#omarchy-theme-sync" title="Permanent link">&para;</a></h1>
+<p>The main_page site defaults to its existing Catppuccin Mocha colors.
+This optional Linux companion applies the local Omarchy palette to open tabs,
+without a page reload or site redeployment. Fresh/Classic selection is removed;
+old saved selections are ignored.</p>
+<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Brave starts <code>native_host.py</code> through native messaging.</li>
+<li>The host reopens <code>$XDG_STATE_HOME/omarchy/current/theme/colors.toml</code>
+   every second, following replacements of the current theme directory.
+   <code>XDG_STATE_HOME</code> defaults to <code>~/.local/state</code>, as used by Omarchy Quattro.
+   Older releases use <code>$XDG_CONFIG_HOME/omarchy/current/theme/colors.toml</code>,
+   with <code>XDG_CONFIG_HOME</code> defaulting to <code>~/.config</code>. The legacy path is used
+   only if the state <code>omarchy/current</code> directory does not exist.</li>
+<li>The extension receives changes and forwards them to matching tabs.</li>
+<li>An isolated content script overrides the site's shared CSS color tokens.</li>
+</ol>
+<p>Background, foreground, and accent colors are used directly. Authored
+supporting shades and named terminal colors are used when present. Missing
+supporting shades are derived from background and foreground, not taken from
+another theme. Current named-color and legacy <code>color1</code> through <code>color6</code> TOML
+palettes are supported. Python 3.11 or newer is required for <code>tomllib</code>.</p>
+<p>The extension is Manifest V3 and requires Chromium 105 or newer. It connects
+only while matching site tabs exist. There is no HTTP server, listening port,
+systemd service, theme hook, or modification to Omarchy settings. The host
+sends a heartbeat every ten seconds. A disconnected, missing, malformed, or
+stalled host restores Catppuccin; a stalled connection expires after 25 seconds.
+The background worker retries failed native connections every five seconds.
+Palettes are not persisted in site storage or synced between machines.</p>
+<p>The extension can access only this project path:
+<a href="https://iop098321qwe.github.io/main_page/">https://iop098321qwe.github.io/main_page/</a>. Other sites, local files, custom
+domains, and preview servers are excluded. Change both the manifest match
+pattern and the background sender check if the deployment URL changes.</p>
+<h2 id="install-in-brave-origin">Install in Brave Origin<a class="headerlink" href="#install-in-brave-origin" title="Permanent link">&para;</a></h2>
+<p>From a checkout of this repository:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>install.py<span class="w"> </span>--browser<span class="w"> </span>brave-origin
+</span></code></pre></div>
+<p>The installer copies companion files to
+<code>~/.local/share/grymm-theme-companion</code> and writes a native messaging manifest
+under <code>~/.config/BraveSoftware/Brave-Origin/NativeMessagingHosts</code>.
+<code>XDG_DATA_HOME</code> and <code>XDG_CONFIG_HOME</code> override those base directories.
+The launcher uses the exact Python executable running the installer. Rerun
+installation after replacing that interpreter, for example after a major
+Python upgrade or removing a virtual environment.</p>
+<p>Then, once per browser profile:</p>
+<ol>
+<li>Open <code>brave://extensions</code> and enable <strong>Developer mode</strong>.</li>
+<li>Choose <strong>Load unpacked</strong> and select the <code>extension</code> subdirectory at the
+   path printed by the installer.</li>
+<li>Check that the extension ID matches the printed ID.</li>
+<li>Open or reload the GitHub Pages site.</li>
+</ol>
+<p>The public manifest key gives the unpacked extension a stable ID across
+machines and paths. It is not a credential. The key is an unbreakable hash-like
+value and is the documented 80-column exception in <code>manifest.json</code>.</p>
+<p>For standard Brave, use <code>--browser brave</code>. Repeat <code>--browser</code> to register
+multiple supported browsers. Run <code>python3 install.py --help</code> for
+the complete list. Native messaging support in other packaging formats,
+such as Flatpak or Snap, is not provided by this installer.</p>
+<h2 id="chezmoi-deployment">Chezmoi deployment<a class="headerlink" href="#chezmoi-deployment" title="Permanent link">&para;</a></h2>
+<p>Use an apply hook in the Chezmoi source repository to download a pinned
+revision of these five files and run the installer:</p>
+<ul>
+<li><code>install.py</code></li>
+<li><code>native_host.py</code></li>
+<li><code>extension/manifest.json</code></li>
+<li><code>extension/background.js</code></li>
+<li><code>extension/content.js</code></li>
+</ul>
+<p>The companion source belongs here; Chezmoi should own its revision pin and
+deployment policy. The hook should run only on Linux with Omarchy installed,
+cache downloads outside a development checkout, and rerun the idempotent
+installer on apply. Pin a full commit SHA rather than a moving branch. Update
+that pin intentionally to deploy a new version on all computers.</p>
+<p>The corresponding <code>dotfiles-arch</code> hook is named
+<code>.chezmoiscripts/run_after_003_theme_companion.sh</code>. It registers Brave Origin
+and standard Brave. <code>chezmoi apply</code> deploys it; <code>chezmoi update</code> pulls and
+applies the latest dotfiles. Merely pulling the dotfiles repository does not
+install the companion.</p>
+<p>Chezmoi cannot silently enable an unpacked extension in a browser profile.
+Perform the browser steps above on each computer/profile. After companion
+updates, use the extension's <strong>Reload</strong> button and reload open site tabs.
+Brave does not automatically update unpacked extensions like store extensions.</p>
+<p>Non-Omarchy computers skip deployment and see Catppuccin. If companion files
+remain after removing Omarchy, the host reports unavailable when there is no
+valid active palette. Remove the native registration to explicitly disable
+integration even if old Omarchy theme files remain on disk.</p>
+<h2 id="verify-and-troubleshoot">Verify and troubleshoot<a class="headerlink" href="#verify-and-troubleshoot" title="Permanent link">&para;</a></h2>
+<p>Print the detected palette without starting native messaging:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>native_host.py<span class="w"> </span>--print
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python3<span class="w"> </span>install.py<span class="w"> </span>--extension-id
+</span></code></pre></div>
+<p><code>{"type": "unavailable"}</code> means that the current theme file is absent,
+unreadable, or invalid. <code>background</code>, <code>foreground</code>, and <code>accent</code> must be
+six-digit hexadecimal colors. Current palettes can declare <code>mode = "light"</code>
+or <code>mode = "dark"</code>; otherwise the host infers the scheme from the background.</p>
+<p>To test the live integration after the site changes have been deployed:</p>
+<ol>
+<li>Open two site tabs, including a nested section page.</li>
+<li>Change Omarchy themes through your normal desktop controls.</li>
+<li>Confirm both tabs update, including inputs, notes, and the quick launcher.</li>
+<li>Test a light palette as well as a dark palette.</li>
+<li>Disable the extension and reload: both tabs should use Catppuccin.</li>
+</ol>
+<p>If colors do not update, inspect the extension's service worker at
+<code>brave://extensions</code>, verify the installed ID and native registration path,
+and compare the host's printed palette with the active theme. Site inspection
+shows <code>data-omarchy-theme="active"</code> on <code>&lt;html&gt;</code> while a palette is applied.</p>
+<p>Automated tests cover native framing, live symlink changes, malformed themes,
+recovery, installer repeatability, multi-tab delivery, reconnection, input
+validation, and stale-connection fallback:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>.venv/bin/python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pytest
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>.venv/bin/python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>-q
+</span></code></pre></div>
+<p>With pytest available in the active Python environment, you can also run:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>-q
+</span></code></pre></div>
+<h2 id="remove">Remove<a class="headerlink" href="#remove" title="Permanent link">&para;</a></h2>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python3<span class="w"> </span>install.py<span class="w"> </span>--browser<span class="w"> </span>brave-origin<span class="w"> </span>--uninstall
+</span></code></pre></div>
+<p>Repeat for other registered browsers, remove the extension from each profile,
+and reload the site. The installer retains shared companion files so other
+registered browsers keep working. Once all registrations are removed, the
+<code>grymm-theme-companion</code> data directory can be deleted manually. Remove or
+disable the Chezmoi deployment hook as well to prevent reinstallation.</p>
+<h2 id="repository-maintenance">Repository maintenance<a class="headerlink" href="#repository-maintenance" title="Permanent link">&para;</a></h2>
+<p>This repository maintains the companion previously hosted in
+<code>main_page/companion</code>. Its extension version, stable manifest key, native host
+name, and installed paths are unchanged. Releases are cut manually; migration
+does not set a release version.</p>
+<p>The existing Chezmoi hook still downloads its pinned <code>main_page</code> revision.
+Switching it to this repository requires changing its repository, revision,
+and download paths together. The old deployment sources are retained until
+that separate cutover, so current installs continue working.</p>
 
 
 
