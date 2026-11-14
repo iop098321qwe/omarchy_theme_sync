@@ -106,6 +106,7 @@ or release automation.
 ## CI and Release
 
 - `.github/workflows/docs.yml` builds Zensical on `main` and `master`.
+- User installation and update instructions must use the `main` branch.
 - Releases are manual; release-note filters are not defined here.
 - Use Conventional Commits for every commit. Prefer a scope when it
   adds clarity.

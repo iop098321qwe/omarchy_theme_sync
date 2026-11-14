@@ -306,6 +306,39 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#what-is-downloaded" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What is downloaded
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Install
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Update
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-it-works" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -317,21 +350,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#install-in-brave-origin" class="md-nav__link">
+  <a href="#other-browsers-and-installation-details" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Install in Brave Origin
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#update-from-github" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Update from GitHub
+        Other browsers and installation details
       </span>
     </span>
   </a>
@@ -397,10 +419,39 @@
 
 
 <h1 id="omarchy-theme-sync">Omarchy theme sync<a class="headerlink" href="#omarchy-theme-sync" title="Permanent link">&para;</a></h1>
-<p>The main_page site defaults to its existing Catppuccin Mocha colors.
-This optional Linux companion applies the local Omarchy palette to open tabs,
-without a page reload or site redeployment. Fresh/Classic selection is removed;
-old saved selections are ignored.</p>
+<p>Apply the current Omarchy theme to the main_page site automatically.
+The site falls back to Catppuccin Mocha when the companion is unavailable.</p>
+<h2 id="what-is-downloaded">What is downloaded<a class="headerlink" href="#what-is-downloaded" title="Permanent link">&para;</a></h2>
+<p>Cloning downloads the <code>main</code> branch: the browser extension, Python native
+host, installer, browser setup helper, documentation, and tests.</p>
+<p>Installation copies the extension and host to
+<code>~/.local/share/grymm-theme-companion</code>, registers the native host with Brave
+Origin, and adds the installed extension to Brave Origin's launch flags.
+Existing browser flags and stock extensions are preserved.</p>
+<p>Requires Linux with Omarchy, Git, Python 3.11+, and Brave Origin.
+No administrator privileges are needed.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
+<p>Run once in a terminal:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/Documents/github_repositories
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>~/Documents/github_repositories
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span>main<span class="w"> </span>https://github.com/iop098321qwe/omarchy_theme_sync.git
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">cd</span><span class="w"> </span>omarchy_theme_sync
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python3<span class="w"> </span>install.py<span class="w"> </span>--browser<span class="w"> </span>brave-origin<span class="w"> </span>--configure-browser
+</span></code></pre></div>
+<p>Fully exit Brave Origin, including all web-app windows, and reopen it.
+Open <a href="https://iop098321qwe.github.io/main_page/">https://iop098321qwe.github.io/main_page/</a> and change your Omarchy theme
+to check that the site's colors follow it.</p>
+<h2 id="update">Update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h2>
+<p>Run from your existing checkout:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>~/Documents/github_repositories/omarchy_theme_sync
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>switch<span class="w"> </span>main
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>pull<span class="w"> </span>--ff-only<span class="w"> </span>origin<span class="w"> </span>main
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>python3<span class="w"> </span>install.py<span class="w"> </span>--browser<span class="w"> </span>brave-origin<span class="w"> </span>--configure-browser
+</span></code></pre></div>
+<p>Fully exit Brave Origin and its web apps, then reopen them.
+Pulling downloads the latest source; running the installer updates the
+installed files and native host registration. Updates are not automatic.
+Existing users keep the same installed paths and extension ID.</p>
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Brave starts <code>native_host.py</code> through native messaging.</li>
@@ -429,31 +480,12 @@ Palettes are not persisted in site storage or synced between machines.</p>
 <a href="https://iop098321qwe.github.io/main_page/">https://iop098321qwe.github.io/main_page/</a>. Other sites, local files, custom
 domains, and preview servers are excluded. Change both the manifest match
 pattern and the background sender check if the deployment URL changes.</p>
-<h2 id="install-in-brave-origin">Install in Brave Origin<a class="headerlink" href="#install-in-brave-origin" title="Permanent link">&para;</a></h2>
-<p>Install Git and Python 3.11+ first, then clone from GitHub:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/Documents/github_repositories
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>~/Documents/github_repositories
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/iop098321qwe/omarchy_theme_sync.git
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">cd</span><span class="w"> </span>omarchy_theme_sync
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>git<span class="w"> </span>switch<span class="w"> </span>develop
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>python3<span class="w"> </span>install.py<span class="w"> </span>--browser<span class="w"> </span>brave-origin<span class="w"> </span>--configure-browser
-</span></code></pre></div>
-<p>Until a release is cut, use <code>develop</code>, where the extension source lives.
-Private repository access requires GitHub authentication.
-No administrator privileges are needed.</p>
-<p>The installer copies companion files to
-<code>~/.local/share/grymm-theme-companion</code> and writes a native messaging manifest
-under <code>~/.config/BraveSoftware/Brave-Origin/NativeMessagingHosts</code>.
-<code>XDG_DATA_HOME</code> and <code>XDG_CONFIG_HOME</code> override those base directories.
-The launcher uses the exact Python executable running the installer. Rerun
-installation after replacing that interpreter, for example after a major
-Python upgrade or removing a virtual environment.</p>
-<p>For Brave Origin, fully exit all browser and web-app windows and reopen.
-<code>--configure-browser</code> merges the installed companion and an installed Calendar
-bridge into launch flags without dropping stock extensions or other flags.
-It backs up changed flags and preserves file permissions and symlinks.</p>
-<p>For other supported browsers, or when automatic loading is unavailable,
-perform these steps once per browser profile:</p>
+<h2 id="other-browsers-and-installation-details">Other browsers and installation details<a class="headerlink" href="#other-browsers-and-installation-details" title="Permanent link">&para;</a></h2>
+<p>For standard Brave, run <code>python3 install.py --browser brave</code> instead.
+Repeat <code>--browser</code> to register multiple browsers, on both install and update.
+Run <code>python3 install.py --help</code> for the supported browser list.
+Flatpak and Snap browser packages are not supported.</p>
+<p>For browsers other than Brave Origin, or if automatic loading is unavailable:</p>
 <ol>
 <li>Open <code>brave://extensions</code> and enable <strong>Developer mode</strong>.</li>
 <li>Choose <strong>Load unpacked</strong> and select the <code>extension</code> subdirectory at the
@@ -461,34 +493,14 @@ perform these steps once per browser profile:</p>
 <li>Check that the extension ID matches the printed ID.</li>
 <li>Open or reload the GitHub Pages site.</li>
 </ol>
-<p>The public manifest key gives the unpacked extension a stable ID across
-machines and paths. It is not a credential. The key is an unbreakable hash-like
-value and is the documented 80-column exception in <code>manifest.json</code>.</p>
-<p>For standard Brave, use <code>--browser brave</code>. Repeat <code>--browser</code> to register
-multiple supported browsers. Run <code>python3 install.py --help</code> for
-the complete list. Native messaging support in other packaging formats,
-such as Flatpak or Snap, is not provided by this installer.</p>
-<h2 id="update-from-github">Update from GitHub<a class="headerlink" href="#update-from-github" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>~/Documents/github_repositories/omarchy_theme_sync
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>switch<span class="w"> </span>develop
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>pull<span class="w"> </span>--ff-only<span class="w"> </span>origin<span class="w"> </span>develop
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>python3<span class="w"> </span>install.py<span class="w"> </span>--browser<span class="w"> </span>brave-origin<span class="w"> </span>--browser<span class="w"> </span>brave<span class="w"> </span>--configure-browser
-</span></code></pre></div>
-<p>Use only the <code>--browser</code> values for browsers you use; repeat them on updates.
-For browsers other than Brave Origin, omit <code>--configure-browser</code> unless you
-also want to configure Brave Origin.</p>
-<p>Fully exit Brave Origin, including web-app windows, and reopen it.
-For manually loaded extensions, open the browser's extensions page, click
-<strong>Reload</strong> on the companion card, and reload all open main_page tabs.
-Verify a theme change updates the site. Git pull alone does not update the
-installed files; rerun the installer every time.</p>
-<p>Chezmoi no longer installs or updates the companion. The installed path,
-native host name, and extension ID are unchanged for existing users.
-Brave does not automatically update unpacked extensions like store extensions.</p>
-<p>Non-Omarchy computers skip deployment and see Catppuccin. If companion files
-remain after removing Omarchy, the host reports unavailable when there is no
-valid active palette. Remove the native registration to explicitly disable
-integration even if old Omarchy theme files remain on disk.</p>
+<p>After updating a manually loaded extension, click <strong>Reload</strong> on its browser
+settings card and reload the site tabs.</p>
+<p>Private repository access requires GitHub authentication.
+<code>XDG_DATA_HOME</code> and <code>XDG_CONFIG_HOME</code> override installation base directories.
+The native registration is written under the selected browser's
+<code>NativeMessagingHosts</code> directory. The launcher uses the Python executable
+running the installer; rerun installation after replacing that interpreter.
+The manifest's public key preserves the extension ID; it is not a credential.</p>
 <h2 id="verify-and-troubleshoot">Verify and troubleshoot<a class="headerlink" href="#verify-and-troubleshoot" title="Permanent link">&para;</a></h2>
 <p>Print the detected palette without starting native messaging:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>native_host.py<span class="w"> </span>--print

@@ -1,9 +1,49 @@
 # Omarchy theme sync
 
-The main_page site defaults to its existing Catppuccin Mocha colors.
-This optional Linux companion applies the local Omarchy palette to open tabs,
-without a page reload or site redeployment. Fresh/Classic selection is removed;
-old saved selections are ignored.
+Apply the current Omarchy theme to the main_page site automatically.
+The site falls back to Catppuccin Mocha when the companion is unavailable.
+
+## What is downloaded
+
+Cloning downloads the `main` branch: the browser extension, Python native
+host, installer, browser setup helper, documentation, and tests.
+
+Installation copies the extension and host to
+`~/.local/share/grymm-theme-companion`, registers the native host with Brave
+Origin, and adds the installed extension to Brave Origin's launch flags.
+Existing browser flags and stock extensions are preserved.
+
+Requires Linux with Omarchy, Git, Python 3.11+, and Brave Origin.
+No administrator privileges are needed.
+
+## Install
+
+Run once in a terminal:
+
+```sh
+git clone --branch main https://github.com/iop098321qwe/omarchy_theme_sync.git
+cd omarchy_theme_sync
+python3 install.py --browser brave-origin --configure-browser
+```
+
+Fully exit Brave Origin, including all web-app windows, and reopen it.
+Open <https://iop098321qwe.github.io/main_page/> and change your Omarchy theme
+to check that the site's colors follow it.
+
+## Update
+
+Run from your existing checkout:
+
+```sh
+git switch main
+git pull --ff-only origin main
+python3 install.py --browser brave-origin --configure-browser
+```
+
+Fully exit Brave Origin and its web apps, then reopen them.
+Pulling downloads the latest source; running the installer updates the
+installed files and native host registration. Updates are not automatic.
+Existing users keep the same installed paths and extension ID.
 
 ## How it works
 
@@ -36,38 +76,14 @@ The extension can access only this project path:
 domains, and preview servers are excluded. Change both the manifest match
 pattern and the background sender check if the deployment URL changes.
 
-## Install in Brave Origin
+## Other browsers and installation details
 
-Install Git and Python 3.11+ first, then clone from GitHub:
+For standard Brave, run `python3 install.py --browser brave` instead.
+Repeat `--browser` to register multiple browsers, on both install and update.
+Run `python3 install.py --help` for the supported browser list.
+Flatpak and Snap browser packages are not supported.
 
-```sh
-mkdir -p ~/Documents/github_repositories
-cd ~/Documents/github_repositories
-git clone https://github.com/iop098321qwe/omarchy_theme_sync.git
-cd omarchy_theme_sync
-git switch develop
-python3 install.py --browser brave-origin --configure-browser
-```
-
-Until a release is cut, use `develop`, where the extension source lives.
-Private repository access requires GitHub authentication.
-No administrator privileges are needed.
-
-The installer copies companion files to
-`~/.local/share/grymm-theme-companion` and writes a native messaging manifest
-under `~/.config/BraveSoftware/Brave-Origin/NativeMessagingHosts`.
-`XDG_DATA_HOME` and `XDG_CONFIG_HOME` override those base directories.
-The launcher uses the exact Python executable running the installer. Rerun
-installation after replacing that interpreter, for example after a major
-Python upgrade or removing a virtual environment.
-
-For Brave Origin, fully exit all browser and web-app windows and reopen.
-`--configure-browser` merges the installed companion and an installed Calendar
-bridge into launch flags without dropping stock extensions or other flags.
-It backs up changed flags and preserves file permissions and symlinks.
-
-For other supported browsers, or when automatic loading is unavailable,
-perform these steps once per browser profile:
+For browsers other than Brave Origin, or if automatic loading is unavailable:
 
 1. Open `brave://extensions` and enable **Developer mode**.
 2. Choose **Load unpacked** and select the `extension` subdirectory at the
@@ -75,42 +91,15 @@ perform these steps once per browser profile:
 3. Check that the extension ID matches the printed ID.
 4. Open or reload the GitHub Pages site.
 
-The public manifest key gives the unpacked extension a stable ID across
-machines and paths. It is not a credential. The key is an unbreakable hash-like
-value and is the documented 80-column exception in `manifest.json`.
+After updating a manually loaded extension, click **Reload** on its browser
+settings card and reload the site tabs.
 
-For standard Brave, use `--browser brave`. Repeat `--browser` to register
-multiple supported browsers. Run `python3 install.py --help` for
-the complete list. Native messaging support in other packaging formats,
-such as Flatpak or Snap, is not provided by this installer.
-
-## Update from GitHub
-
-```sh
-cd ~/Documents/github_repositories/omarchy_theme_sync
-git switch develop
-git pull --ff-only origin develop
-python3 install.py --browser brave-origin --browser brave --configure-browser
-```
-
-Use only the `--browser` values for browsers you use; repeat them on updates.
-For browsers other than Brave Origin, omit `--configure-browser` unless you
-also want to configure Brave Origin.
-
-Fully exit Brave Origin, including web-app windows, and reopen it.
-For manually loaded extensions, open the browser's extensions page, click
-**Reload** on the companion card, and reload all open main_page tabs.
-Verify a theme change updates the site. Git pull alone does not update the
-installed files; rerun the installer every time.
-
-Chezmoi no longer installs or updates the companion. The installed path,
-native host name, and extension ID are unchanged for existing users.
-Brave does not automatically update unpacked extensions like store extensions.
-
-Non-Omarchy computers skip deployment and see Catppuccin. If companion files
-remain after removing Omarchy, the host reports unavailable when there is no
-valid active palette. Remove the native registration to explicitly disable
-integration even if old Omarchy theme files remain on disk.
+Private repository access requires GitHub authentication.
+`XDG_DATA_HOME` and `XDG_CONFIG_HOME` override installation base directories.
+The native registration is written under the selected browser's
+`NativeMessagingHosts` directory. The launcher uses the Python executable
+running the installer; rerun installation after replacing that interpreter.
+The manifest's public key preserves the extension ID; it is not a credential.
 
 ## Verify and troubleshoot
 
