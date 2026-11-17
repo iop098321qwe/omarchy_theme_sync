@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read Omarchy colors for Brave native messaging; never open a socket."""
 
+import ctypes
 import json
 import os
 from pathlib import Path
@@ -83,26 +84,138 @@ def palette_from_colors(colors):
     return {"type": "palette", "colors": tokens, "scheme": scheme}
 
 
-def read_palette(config_home=None, state_home=None):
+def theme_roots(config_home=None, state_home=None):
     config = Path(config_home or os.environ.get(
         "XDG_CONFIG_HOME", str(Path.home() / ".config")
     ))
     state = Path(state_home or os.environ.get(
         "XDG_STATE_HOME", str(Path.home() / ".local/state")
     ))
+    return state / "omarchy/current", config / "omarchy/current"
+
+
+def palette_path(config_home=None, state_home=None):
     # Quattro moved runtime theme data to state; older releases use config.
     # Once the current state directory exists, a missing/invalid palette must
     # clear overrides rather than resurrect a stale legacy config palette.
-    current = state / "omarchy/current"
+    current, legacy = theme_roots(config_home, state_home)
     if not current.exists():
-        current = config / "omarchy/current"
+        current = legacy
+    return current / "theme/colors.toml"
+
+
+def read_palette(config_home=None, state_home=None):
     try:
-        path = current / "theme/colors.toml"
-        # Reopen on every tick: Omarchy can replace the current-theme symlink.
+        path = palette_path(config_home, state_home)
         with path.open("rb") as source:
             return palette_from_colors(tomllib.load(source))
     except (OSError, ValueError, TypeError):
         return {"type": "unavailable"}
+
+
+class PaletteCache:
+    """Avoid reopening and parsing unchanged files during reconciliation."""
+
+    def __init__(self):
+        self.signature = None
+        self.palette = {"type": "unavailable"}
+
+    def read(self, force=False):
+        path = palette_path()
+        try:
+            info = path.stat()
+            signature = (
+                path, info.st_dev, info.st_ino, info.st_size,
+                info.st_mtime_ns, info.st_ctime_ns,
+            )
+        except OSError:
+            signature = (path, None)
+        if force or signature != self.signature:
+            self.palette = read_palette()
+            self.signature = signature
+        return self.palette
+
+
+class ThemeWatcher:
+    """Dependency-free Linux inotify; poll if unavailable or watches fail."""
+
+    MASK = 0x0000000E | 0x00000FC0  # modify, attrib, close-write, moves, deletes
+    IGNORED = 0x00008000
+
+    def __init__(self):
+        self.fd = -1
+        self.watches = {}
+        self.complete = False
+        try:
+            self.libc = ctypes.CDLL(None, use_errno=True)
+            self.libc.inotify_init1.argtypes = [ctypes.c_int]
+            self.libc.inotify_init1.restype = ctypes.c_int
+            self.libc.inotify_add_watch.argtypes = [
+                ctypes.c_int, ctypes.c_char_p, ctypes.c_uint32,
+            ]
+            self.libc.inotify_add_watch.restype = ctypes.c_int
+            self.libc.inotify_rm_watch.argtypes = [ctypes.c_int, ctypes.c_int]
+            self.libc.inotify_rm_watch.restype = ctypes.c_int
+            self.fd = self.libc.inotify_init1(os.O_NONBLOCK | os.O_CLOEXEC)
+            if self.fd >= 0:
+                self.refresh()
+        except (AttributeError, OSError):
+            self.close()
+
+    def refresh(self):
+        if self.fd < 0:
+            return
+        watches = {}
+        self.complete = True
+        for root in theme_roots():
+            # Watch each ancestor, including the nearest existing one when
+            # XDG directories are absent. add_watch follows theme symlinks.
+            path = root / "theme/colors.toml"
+            child = None
+            boundary = root.parent.parent
+            for candidate in [path, *path.parents]:
+                wd = self.libc.inotify_add_watch(
+                    self.fd, os.fsencode(candidate), self.MASK
+                )
+                if wd >= 0:
+                    names = watches.setdefault(wd, set())
+                    names.add(child.name if child else "")
+                    if candidate == boundary or candidate in boundary.parents:
+                        break
+                elif candidate.exists():
+                    self.complete = False
+                child = candidate
+        for wd in self.watches.keys() - watches.keys():
+            self.libc.inotify_rm_watch(self.fd, wd)
+        self.watches = watches
+
+    def changed(self):
+        changed = False
+        while True:
+            try:
+                events = os.read(self.fd, 65536)
+            except BlockingIOError:
+                break
+            if not events:
+                break
+            offset = 0
+            while offset < len(events):
+                wd, mask, _, length = struct.unpack_from("iIII", events, offset)
+                name = os.fsdecode(events[offset + 16:offset + 16 + length])
+                name = name.rstrip("\0")
+                offset += 16 + length
+                if mask & self.IGNORED:
+                    self.watches.pop(wd, None)
+                elif not name or name in self.watches.get(wd, ()):
+                    # Includes queue overflow: reconcile paths and contents.
+                    changed = True
+        return changed
+
+    def close(self):
+        if self.fd >= 0:
+            os.close(self.fd)
+            self.fd = -1
+        self.watches.clear()
 
 
 def write_message(message, stream):
@@ -115,17 +228,31 @@ def write_message(message, stream):
 def serve():
     previous = None
     last_sent = 0
-    while True:
-        palette = read_palette()
-        now = time.monotonic()
-        if palette != previous or now - last_sent >= 10:
-            write_message(palette, sys.stdout.buffer)
-            previous, last_sent = palette, now
-        # Browser closes stdin when its native port disconnects. Exit then,
-        # including when there are no site tabs left; no daemon is installed.
-        readable, _, _ = select.select([sys.stdin.buffer], [], [], 1)
-        if readable and not os.read(sys.stdin.fileno(), 4096):
-            return
+    cache = PaletteCache()
+    watcher = ThemeWatcher()
+    force = True
+    try:
+        while True:
+            signature = cache.signature
+            palette = cache.read(force)
+            if force or signature != cache.signature or not watcher.complete:
+                watcher.refresh()
+            now = time.monotonic()
+            if palette != previous or now - last_sent >= 10:
+                write_message(palette, sys.stdout.buffer)
+                previous, last_sent = palette, now
+            inputs = [sys.stdin.buffer]
+            if watcher.fd >= 0:
+                inputs.append(watcher.fd)
+            # Reconcile missed events/failed watches; fallback is subsecond.
+            timeout = 1 if watcher.complete else 0.25
+            readable, _, _ = select.select(inputs, [], [], timeout)
+            if sys.stdin.buffer in readable:
+                if not os.read(sys.stdin.fileno(), 4096):
+                    return
+            force = watcher.fd in readable and watcher.changed()
+    finally:
+        watcher.close()
 
 
 if __name__ == "__main__":
