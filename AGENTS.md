@@ -72,9 +72,12 @@ or release automation.
 
 ## Architecture
 
-- The native host reads Omarchy TOML colors and sends framed JSON.
-- The worker forwards validated palettes to matching main_page tabs.
-- The content script sets CSS tokens; host failures restore site defaults.
+- The native host watches Omarchy TOML colors and sends framed JSON.
+- Inotify triggers reads; cached metadata polling recovers missed events.
+- Poll every 250 ms when notifications or required watches are unavailable.
+- The worker shares one native connection and retry across matching tabs.
+- The content script validates palettes and writes only changed CSS tokens.
+- Heartbeats refresh expiry; host failures restore site defaults.
 - State-path theme discovery precedes legacy config-path discovery.
 - Keep the manifest key, native host name, and installed paths stable.
 
@@ -110,6 +113,8 @@ or release automation.
 - Releases are manual; release-note filters are not defined here.
 - Use Conventional Commits for every commit. Prefer a scope when it
   adds clarity.
+- Base `perf/*` branches on `develop` unless explicitly requested otherwise.
+- If `develop` is unavailable, ask instead of choosing another base.
 - Never create, edit, or update `CHANGELOG.md` manually.
 - `CHANGELOG.md` is generated and maintained by release tooling only.
 - If release automation adds or changes generated files, let the
