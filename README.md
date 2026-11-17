@@ -48,14 +48,18 @@ Existing users keep the same installed paths and extension ID.
 ## How it works
 
 1. Brave starts `native_host.py` through native messaging.
-2. The host reopens `$XDG_STATE_HOME/omarchy/current/theme/colors.toml`
-   every second, following replacements of the current theme directory.
+2. The host watches `$XDG_STATE_HOME/omarchy/current/theme/colors.toml`
+   with Linux filesystem notifications, following file and theme-directory
+   replacements. It checks file metadata every second to recover missed
+   events, without reparsing unchanged palettes. If notifications are
+   unavailable or watches fail, metadata polling runs every 250 milliseconds.
    `XDG_STATE_HOME` defaults to `~/.local/state`, as used by Omarchy Quattro.
    Older releases use `$XDG_CONFIG_HOME/omarchy/current/theme/colors.toml`,
    with `XDG_CONFIG_HOME` defaulting to `~/.config`. The legacy path is used
    only if the state `omarchy/current` directory does not exist.
 3. The extension receives changes and forwards them to matching tabs.
-4. An isolated content script overrides the site's shared CSS color tokens.
+4. An isolated content script overrides the site's shared CSS color tokens
+   as soon as the page root exists, writing only changed values.
 
 Background, foreground, and accent colors are used directly. Authored
 supporting shades and named terminal colors are used when present. Missing
@@ -68,7 +72,9 @@ only while matching site tabs exist. There is no HTTP server, listening port,
 systemd service, theme hook, or modification to Omarchy settings. The host
 sends a heartbeat every ten seconds. A disconnected, missing, malformed, or
 stalled host restores Catppuccin; a stalled connection expires after 25 seconds.
-The background worker retries failed native connections every five seconds.
+Heartbeats refresh expiry without rewriting unchanged colors.
+The background worker retries failed native connections every five seconds,
+sharing a single retry across tabs.
 Palettes are not persisted in site storage or synced between machines.
 
 The extension can access only this project path:
